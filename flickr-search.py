@@ -28,7 +28,7 @@ t1_unix = time.mktime(t_min.timetuple())
 t2_unix = time.mktime(t_max.timetuple())
 i = 1
 f = open(args.output, "a")
-f.write('id;title;user_id;lon;lat;taken;tags\n')
+f.write('id|title|user_id|lon|lat|taken|tags\n')
 while True:
 	print "page", i
 	photos = None
@@ -51,7 +51,7 @@ while True:
 				for tag in photoTags.getiterator():
 					if not (tag.get('raw') is None):
 						tags.append(tag.get('raw'))
-				f.write(photo.attrib['id'] + ';' + photo.attrib['title'].encode('utf-8') + ';' + photo.attrib['owner'] + ';' + photoLoc[0][0].attrib['longitude'] + ';' + photoLoc[0][0].attrib['latitude'] + ';' + photoInfo.find('photo').find('dates').get('taken') + ';' + ','.join(tags).encode('utf-8') + '\n')
+				f.write(photo.attrib['id'] + '|' + photo.attrib['title'].encode('utf-8') + '|' + photo.attrib['owner'] + '|' + photoLoc[0][0].attrib['longitude'] + '|' + photoLoc[0][0].attrib['latitude'] + '|' + photoInfo.find('photo').find('dates').get('taken') + '|' + ','.join(tags).encode('utf-8') + '\n')
 			except Exception as e:
 				print e
 				print 'skipping'
