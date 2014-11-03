@@ -28,27 +28,37 @@ t1_unix = time.mktime(t_min.timetuple())
 t2_unix = time.mktime(t_max.timetuple())
 i = 1
 f = open(args.output, "a")
+f.write('id;title;user_id;lon;lat;taken;tags\n')
 while True:
 	print "page", i
+	photos = None
 	try:
 		photos = flickr.photos_search(bbox=bbox_string, min_taken_date=str(int(t1_unix)), max_taken_date=str(int(t2_unix)), page=str(i))
+	except Exception as e:
+		print e
+	
+	if photos is not None:
 		if len(photos[0]) == 0:
 			break
 		j = 1
 		for photo in photos[0]:
-			print "photo", j
-			photoLoc = flickr.photos_geo_getLocation(photo_id=photo.attrib['id'])
-			photoInfo = flickr.photos_getInfo(photo_id=photo.attrib['id'])
-			photoTags = flickr.tags_getListPhoto(photo_id=photo.attrib['id']).find('photo').find('tags')
-			tags = []
-			for tag in photoTags.getiterator():
-				if not (tag.get('raw') is None):
-					tags.append(tag.get('raw'))
-			f.write(photo.attrib['id'] + ';' + photo.attrib['title'].encode('utf-8') + ';' + photo.attrib['owner'] + ';' + photoLoc[0][0].attrib['longitude'] + ';' + photoLoc[0][0].attrib['latitude'] + ';' + photoInfo.find('photo').find('dates').get('taken') + ';' + ','.join(tags).encode('utf-8') + '\n')
-			j = j + 1
+			print "photo", j, photo.attrib['id']
+			try:
+				photoLoc = flickr.photos_geo_getLocation(photo_id=photo.attrib['id'])
+				photoInfo = flickr.photos_getInfo(photo_id=photo.attrib['id'])
+				photoTags = flickr.tags_getListPhoto(photo_id=photo.attrib['id']).find('photo').find('tags')
+				tags = []
+				for tag in photoTags.getiterator():
+					if not (tag.get('raw') is None):
+						tags.append(tag.get('raw'))
+				f.write(photo.attrib['id'] + ';' + photo.attrib['title'].encode('utf-8') + ';' + photo.attrib['owner'] + ';' + photoLoc[0][0].attrib['longitude'] + ';' + photoLoc[0][0].attrib['latitude'] + ';' + photoInfo.find('photo').find('dates').get('taken') + ';' + ','.join(tags).encode('utf-8') + '\n')
+			except Exception as e:
+				print e
+				print 'skipping'
+			finally:
+				j = j + 1
 		i = i + 1
-	except Exception as e:
-		print e
-		print 'waiting 1 minute...'
+	else:
+		print 'waiting 1 minute for next page call...'
 		time.sleep(60)
 f.close()
