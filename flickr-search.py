@@ -8,8 +8,6 @@ from sets import Set
 
 socket.setdefaulttimeout(5)
 
-helpstring = 'usage: instagram-stsearch.py -h(elp) -t <access-token> -b <bbox min-lon,max-lon,min-lat,max-lat> -s <start timestamp in human readable format> -e <end timestamp in human readable format> -o <outputfile> [-r <radius of search circles, default 5000m>]'
-
 argparser = argparse.ArgumentParser()
 argparser.add_argument("api_key", help="instagram access-token", type=str)
 argparser.add_argument("lon_min", help="bounding box minimum longitude", type=float)
@@ -19,7 +17,8 @@ argparser.add_argument("lat_max", help="bounding box maximum latitude", type=flo
 argparser.add_argument("t_min", help="minimum timestamp", type=str)
 argparser.add_argument("t_max", help="maximum timestamp", type=str)
 argparser.add_argument("max_duration", help="maximum duration in days", type=str)
-argparser.add_argument("output", help="output location", type=str)
+argparser.add_argument("output", help="location of output file", type=str)
+argparser.add_argument("-a", help="also retrieve all photos outside of the bbox of users within the result set", action="store_true")
 args = argparser.parse_args()	
 
 flickr = flickrapi.FlickrAPI(args.api_key, cache=False)
