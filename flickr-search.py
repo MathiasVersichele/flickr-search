@@ -34,7 +34,7 @@ t_min_list = [t_min if x<t_min else x for x in t_min_list]
 
 downloaded_photo_ids = Set([])
 f = open(args.output, "a")
-f.write('id|title|user_id|lon|lat|taken|tags\n')
+f.write('id|type|user_id|user_name|link|timestamp|lon|lat|accuracy|caption|tags\n')
 
 for i in range(0, len(t_max_list)):
 	t1 = t_min_list[i]
@@ -52,7 +52,7 @@ for i in range(0, len(t_max_list)):
 		print "calling flickr.photos.search, page ", page
 		photos = None
 		try:
-			photos = flickr.photos_search(bbox=bbox_string, min_taken_date=str(int(t1_unix)), max_taken_date=str(int(t2_unix)), page=str(page))
+			photos = flickr.photos_search(bbox=bbox_string, min_taken_date=str(int(t1_unix)), max_taken_date=str(int(t2_unix)), page=str(page), extras='media,geo,description,owner_name,date_taken,url_o,tags')
 		except Exception as e:
 			print e
 	
@@ -70,20 +70,28 @@ for i in range(0, len(t_max_list)):
 				print 'photo', j, photo.attrib['id']
 				if(photo.attrib['id'] not in downloaded_photo_ids):
 					try:
-						photoLoc = flickr.photos_geo_getLocation(photo_id=photo.attrib['id'])
-						photoInfo = flickr.photos_getInfo(photo_id=photo.attrib['id'])
-						photoTags = flickr.tags_getListPhoto(photo_id=photo.attrib['id']).find('photo').find('tags')
-						tags = []
-						for tag in photoTags.getiterator():
-							if not (tag.get('raw') is None):
-								tags.append(tag.get('raw'))
-						f.write(photo.attrib['id'] + '|' + photo.attrib['title'].encode('utf-8') + '|' + photo.attrib['owner'] + '|' + photoLoc[0][0].attrib['longitude'] + '|' + photoLoc[0][0].attrib['latitude'] + '|' + photoInfo.find('photo').find('dates').get('taken') + '|' + ','.join(tags).encode('utf-8') + '\n')
+						id = photo.attrib['id']
+						user_id = photo.attrib['owner']
+						title = 'lk'#photo.attrib['title'].encode('utf-8')
+						location_lon = photo.attrib['longitude']
+						location_lat = photo.attrib['latitude']
+						accuracy = photo.attrib['accuracy']
+						timestamp = photo.attrib['datetaken']
+						user_name = photo.attrib['ownername'].encode('utf-8')
+						caption = photo.find('description').text
+						if caption == None:
+							caption = ''
+						caption = caption.encode('utf-8').replace('\n', '')
+						link = photo.attrib['url_o']
+						type = photo.attrib['media']
+						tags = photo.attrib['tags'].encode('utf-8').replace(' ', ',')
+								
+						f.write(id + '|' + type + '|' + user_id + '|' + user_name + '|' + link + '|' + timestamp + '|' + str(location_lon) + '|' + str(location_lat) + '|' + accuracy + '|' + caption + '|' + tags + '\n')
 						downloaded_photo_ids.add(photo.attrib['id'])
 						print '  added'
 						#new_photos = new_photos + 1
 					except Exception as e:
-						print e
-						print '  skipping'
+						print e, '  skipping'
 				else:
 					print '  already added'
 				j = j + 1
