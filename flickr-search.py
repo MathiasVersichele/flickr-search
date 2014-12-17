@@ -52,7 +52,7 @@ for i in range(0, len(t_max_list)):
 		print "calling flickr.photos.search, page ", page
 		photos = None
 		try:
-			photos = flickr.photos_search(bbox=bbox_string, min_taken_date=str(int(t1_unix)), max_taken_date=str(int(t2_unix)), page=str(page), extras='media,geo,description,owner_name,date_taken,url_o,tags')
+			photos = flickr.photos_search(bbox=bbox_string, min_taken_date=str(int(t1_unix)), max_taken_date=str(int(t2_unix)), page=str(page), extras='media,geo,description,owner_name,date_taken,url_m,tags')
 		except Exception as e:
 			print e
 	
@@ -65,14 +65,13 @@ for i in range(0, len(t_max_list)):
 			if len(photos[0]) == 0:
 				break
 			j = 1
-			#new_photos = 0
 			for photo in photos[0]:
 				print 'photo', j, photo.attrib['id']
 				if(photo.attrib['id'] not in downloaded_photo_ids):
 					try:
 						id = photo.attrib['id']
 						user_id = photo.attrib['owner']
-						title = 'lk'#photo.attrib['title'].encode('utf-8')
+						title = photo.attrib['title'].encode('utf-8')
 						location_lon = photo.attrib['longitude']
 						location_lat = photo.attrib['latitude']
 						accuracy = photo.attrib['accuracy']
@@ -82,22 +81,19 @@ for i in range(0, len(t_max_list)):
 						if caption == None:
 							caption = ''
 						caption = caption.encode('utf-8').replace('\n', '')
-						link = photo.attrib['url_o']
+						link = photo.attrib['url_m']
 						type = photo.attrib['media']
 						tags = photo.attrib['tags'].encode('utf-8').replace(' ', ',')
 								
 						f.write(id + '|' + type + '|' + user_id + '|' + user_name + '|' + link + '|' + timestamp + '|' + str(location_lon) + '|' + str(location_lat) + '|' + accuracy + '|' + caption + '|' + tags + '\n')
 						downloaded_photo_ids.add(photo.attrib['id'])
 						print '  added'
-						#new_photos = new_photos + 1
 					except Exception as e:
 						print e, '  skipping'
 				else:
 					print '  already added'
 				j = j + 1
 			page = page + 1
-			#if new_photos == 0:
-			#	break
 		else:
 			print 'waiting 1 minute for next call...'
 			time.sleep(60)
