@@ -109,10 +109,11 @@ for i in range(0, len(t_max_list)):
 if args.a:
 	print 'Downloading all photos of users in result set...'
 	call = 0
-	for user_id in user_ids:
+	for user in user_ids:
 		call = call + 1
-		print user_id, '(', call, ' of ', len(user_ids), ', ', round(float(call) / float(len(user_ids)) * 100, 3), '%)'
-		fetchPhotos(flickr, user_id=user_id, extras='media,geo,description,owner_name,date_taken,url_m,tags')
+		print user, '(', call, ' of ', len(user_ids), ', ', round(float(call) / float(len(user_ids)) * 100, 3), '%)'
+		print str(time.mktime(t_min.timetuple())), str(time.mktime(t_max.timetuple()))
+		fetchPhotos(flickr, user_id=user, min_taken_date=str(int(time.mktime(t_min.timetuple()))), max_taken_date=str(int(time.mktime(t_max.timetuple()))), extras='media,geo,description,owner_name,date_taken,url_m,tags')
 
 f.close()
 print 'done!'
